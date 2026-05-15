@@ -7,58 +7,50 @@ public class MancalaEnv
 
     public enum Player
     {
+        PLAYER,
         AGENT,
-        OPPONENT
     };
     private Player currentPlayer;
+
+    public Player CurrentPlayer => currentPlayer;
+
+    // The model always sees the board from the perspective of the agent, so we need to flip the board state
+    public float[] BoardState => Enumerable
+        .Range(7, 7).Select(i => board[i])
+        .Concat(Enumerable.Range(0, 7).Select(i => board[i]))
+        .Select(x => x / 48.0f)
+        .ToArray();
 
     public MancalaEnv()
     {
         Reset();
     }
 
-    List<float> Reset()
+    public float[] Reset()
     {
         // 6 pits each + 2 mancalas
         board = new int[] {4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0};
-        currentPlayer = Player.AGENT;
-        return GetState();
+        currentPlayer = Player.PLAYER;
+        return BoardState;
     }
 
-    List<float> GetState()
-    {
-        return board.Select(x => x / 48.0f).ToList();
-    }
-
-    List<int> ValidMoves()
-    {
-        if (currentPlayer == Player.AGENT)
-        {
-            return Enumerable.Range(0, 6).Where(i => board[i] > 0).ToList();
-        }
-        else
-        {
-            return Enumerable.Range(7, 6).Where(i => board[i] > 0).Select(i => i - 7).ToList();
-        }
-    }
+    public int[] ValidMoves => (currentPlayer == Player.PLAYER)
+        ? Enumerable.Range(0, 6).Where(i => board[i] > 0).ToArray()
+        : Enumerable.Range(7, 6).Where(i => board[i] > 0).Select(i => i - 7).ToArray();
 
     public bool OwnPit(int index)
     {
-        return (currentPlayer == Player.AGENT && 0 <= index && index < 6) ||
-               (currentPlayer == Player.OPPONENT && 7 <= index && index < 13);
+        return (currentPlayer == Player.PLAYER && 0 <= index && index < 6) ||
+               (currentPlayer == Player.AGENT && 7 <= index && index < 13);
     }
 
-    public int OwnMancala()
-    {
-        return currentPlayer == Player.AGENT ? 6 : 13;
-    }
+    public int OwnMancala => (currentPlayer == Player.PLAYER) ? 6 : 13;
 
-    public int OpponentMancala()
-    {
-        return currentPlayer == Player.AGENT ? 13 : 6;
-    }
+    public int OpponentMancala => (currentPlayer == Player.PLAYER) ? 13 : 6;
 
-    public (List<float>, float, bool) Step(int pit)
+    public bool GameOver => board.Take(6).Sum() == 0 || board.Skip(7).Take(6).Sum() == 0;
+
+    public (float[], bool) Step(int pit)
     {
         int stones = board[pit];
         board[pit] = 0;
@@ -69,7 +61,7 @@ public class MancalaEnv
         {
             i = (i + 1) % 14;
             // skip opponent's mancala
-            if (i == OpponentMancala())
+            if (i == OpponentMancala)
             {
                 continue;
             }
@@ -79,58 +71,44 @@ public class MancalaEnv
         int lastPit = i;
 
         // capture rule
-        if (OwnPit(lastPit) && lastPit != OwnMancala() && board[lastPit] == 1)
+        if (OwnPit(lastPit) && lastPit != OwnMancala && board[lastPit] == 1)
         {
             int oppositeIndex = 12 - lastPit;
-            board[OwnMancala()] += board[oppositeIndex];
-            board[oppositeIndex] = 0;
+            if (board[oppositeIndex] > 0)
+            {
+                board[OwnMancala] += board[oppositeIndex] + 1;
+                board[oppositeIndex] = 0;
+                board[lastPit] = 0;
+            }
         }
 
-        float reward = 0;
         bool done = false;
 
         // terminal condition
-        if (board.Take(6).Sum() == 0 || board.Skip(7).Take(6).Sum() == 0)
+        if (GameOver)
         {
+            // collect remaining stones
+            board[6] += board.Take(6).Sum();
+            board[13] += board.Skip(7).Take(6).Sum();
+            for (int j = 0; j < 6; j++)
+            {
+                board[j] = 0;
+                board[j + 7] = 0;
+            }
+
             done = true;
-            if (board[6] > board[13])
-            {
-                reward = 1;
-            }
-            else if (board[6] < board[13])
-            {
-                reward = -1;
-            }
         }
 
         // extra turn rule or switch player
-        if (lastPit != OwnMancala())
+        if (lastPit != OwnMancala)
         {
-            currentPlayer = currentPlayer == Player.AGENT ? Player.OPPONENT : Player.AGENT;
+            currentPlayer = 1 - currentPlayer;
         }
 
-        return (GetState(), reward, done);
+        return (BoardState, done);
     }
 
-    List<float> ValidActionMask()
-    {
-        List<float> mask = new (new float[6]);
-
-        if (currentPlayer == Player.AGENT)
-        {
-            for (int i = 0; i < 6; ++i)
-            {
-                mask[i] = board[i] > 0 ? 1.0f : 0.0f;
-            }
-        }
-        else
-        {
-            for (int i = 7; i < 13; ++i)
-            {
-                mask[i - 7] = board[i] > 0 ? 1.0f : 0.0f;
-            }
-        }
-
-        return mask;
-    }
+    public float[] ValidActionMask => (currentPlayer == Player.AGENT)
+        ? Enumerable.Range(0, 6).Select(i => board[i + 7] > 0 ? 1.0f : 0.0f).ToArray()
+        : Enumerable.Range(7, 6).Select(i => board[i] > 0 ? 1.0f : 0.0f).ToArray();
 }

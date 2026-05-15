@@ -38,7 +38,7 @@ public class Pit : MonoBehaviour
     {
         if (pitIndex < 6)
         {
-            board.PerformMove(pitIndex);
+            StartCoroutine(board.TryPlayerMove(pitIndex));
         }
     }
 }

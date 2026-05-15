@@ -1323,6 +1323,51 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8466965801339818330, guid: 4fae79d6722907547aa08ba6dec968c9, type: 3}
   m_PrefabInstance: {fileID: 1149582008}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1483285468
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1483285470}
+  - component: {fileID: 1483285469}
+  m_Layer: 0
+  m_Name: AI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1483285469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483285468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005286fe15eb4444ea74b1661002db60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MancalaAI
+  onnxModelAsset: {fileID: 5022602860645237092, guid: daa94e9e8444e1741bd6a0c583c00879, type: 3}
+--- !u!4 &1483285470
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483285468}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.16544, y: -0.7099, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1500503156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1709,6 +1754,7 @@ MonoBehaviour:
   marblePrefab: {fileID: 4863460414915521222, guid: 2f80d43722c2b6a4bbe776b2141e7d89, type: 3}
   ownMancala: {fileID: 810381030}
   opponentMancala: {fileID: 1043363409}
+  ai: {fileID: 1483285469}
 --- !u!224 &2003968642 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8466965801339818330, guid: 4fae79d6722907547aa08ba6dec968c9, type: 3}
@@ -2031,3 +2077,4 @@ SceneRoots:
   - {fileID: 1965487444}
   - {fileID: 1836904381}
   - {fileID: 1633349015}
+  - {fileID: 1483285470}
